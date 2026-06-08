@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#FF6B9D">
+    <title>🎮 Adedanha - Jogo da Parada</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            overflow-y: auto;
+            height: 100%;
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+        }
+
+        body {
+            font-family: 'Arial', 'Verdana', sans-serif;
+            background: linear-gradient(135deg, #6B5B95 0%, #FF6B9D 50%, #FFD700 100%);
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        #gameContainer {
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            text-align: center;
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1 {
+            color: #FF6B9D;
+            font-size: 40px;
+            margin: 15px 0;
+            letter-spacing: 2px;
+        }
+
+        h2 {
+            color: #6B5B95;
+            font-size: 24px;
+            margin: 15px 0;
+        }
+
+        .subtitle {
+            color: #87CEEB;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .menu {
+            display: block;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .game {
+            display: none;
+        }
+
+        .description {
+            background: linear-gradient(135deg, #FFF9E6 0%, #FFE6F0 100%);
+            border-radius: 15px;
+            padding: 15px;
+            margin: 20px 0;
+            color: #333;
+            font-size: 14px;
+            line-height: 1.6;
+            border-left: 5px solid #FF6B9D;
+        }
+
+        .buttons-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        button {
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .btn-easy {
+            background: linear-gradient(135deg, #98FF98 0%, #7FFF7F 100%);
+            color: #333;
+            box-shadow: 0 5px 15px rgba(152, 255, 152, 0.4);
+        }
+
+        .btn-medium {
+            background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+            box-shadow: 0 5px 15px rgba(255, 165, 0, 0.4);
+        }
+
+        .btn-hard {
+            background: linear-gradient(135deg, #FF6B9D 0%, #FF1493 100%);
+            box-shadow: 0 5px 15px rgba(255, 107, 157, 0.4);
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .score-item {
+            background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+            padding: 12px 15px;
+            border-radius: 10px;
+            flex: 1;
+            min-width: 80px;
+            border-top: 3px solid #FF6B9D;
+        }
+
+        .score-label {
+            font-size: 11px;
+            color: #666;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .score-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #FF6B9D;
+            display: block;
+            margin-top: 5px;
+        }
+
+        .big-letter {
+            font-size: 80px;
+            font-weight: bold;
+            color: #FF6B9D;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            animation: slideDown 0.5s ease;
+        }
+
+        .categories-container {
+            margin: 20px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .category-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 10px;
+            border: 2px solid #ddd;
+        }
+
+        .category-label {
+            font-weight: bold;
+            color: #6B5B95;
+            min-width: 100px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .category-input input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #FF6B9D;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .category-input input:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(255, 107, 157, 0.5);
+        }
+
+        .check-mark {
+            font-size: 20px;
+            color: #28a745;
+        }
+
+        .btn-skip {
+            background: #ececec;
+            color: #888;
+            border: 1px solid #ccc;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .btn-skip:hover {
+            background: #e0e0e0;
+        }
+
+        .category-skipped {
+            background: #f5f5f5 !important;
+            border-color: #ddd !important;
+            opacity: 0.7;
+        }
+
+        .category-skipped input {
+            background: transparent;
+            color: #aaa;
+            font-style: italic;
+            border-color: #ddd;
+        }
+
+        .timer {
+            font-size: 24px;
+            font-weight: bold;
+            color: #FF6B9D;
+            margin: 15px 0;
+            animation: pulse 1s infinite;
+        }
+
+        .back-btn, .submit-btn, .next-btn, .play-btn {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #333;
+            padding: 12px 25px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .submit-btn, .next-btn, .play-btn {
+            padding: 15px 30px;
+            font-size: 16px;
+        }
+
+        .message {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 240, 240, 0.95) 100%);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 14px;
+            font-weight: bold;
+            color: #333;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-left: 4px solid #FF6B9D;
+        }
+
+        .round-info {
+            background: linear-gradient(135deg, #E6F3FF 0%, #FFE6F0 100%);
+            padding: 12px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .results-container {
+            display: none;
+        }
+
+        .result-item {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #FF6B9D;
+        }
+
+        .result-name {
+            font-weight: bold;
+            color: #6B5B95;
+        }
+
+        .result-score {
+            font-size: 20px;
+            font-weight: bold;
+            color: #FF6B9D;
+        }
+
+        .winner {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .emoji {
+            font-size: 20px;
+        }
+
+        .difficulty-info {
+            background: #f0f8ff;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 13px;
+            color: #333;
+        }
+
+        select {
+            padding: 10px;
+            border: 2px solid #FF6B9D;
+            border-radius: 8px;
+            font-size: 14px;
+            margin: 10px 0;
+            background: white;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .loading-validation {
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            color: #6B5B95;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 4px solid #f0f0f0;
+            border-top: 4px solid #FF6B9D;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <!-- MENU -->
+        <div class="menu" id="menuSection">
+            <h1>🎮 ADEDANHA</h1>
+            <p class="subtitle">O Jogo da Parada Brasileira!</p>
+            
+            <div class="description">
+                <p>📝 Escolhe uma letra aleatória</p>
+                <p>🔤 Preenche as categorias com palavras que começam com ela</p>
+                <p>⭐ Quem consegue preencher TUDO = 10 PONTOS</p>
+                <p>🏆 Quem fizer mais pontos ganha!</p>
+            </div>
+
+            <p style="color: #666; margin: 15px 0; font-weight: bold;">Escolhe o nível de dificuldade:</p>
+            
+            <div class="buttons-container">
+                <button class="btn-easy" onclick="startGame('easy')">
+                    🌱 Fácil (5 categorias)
+                </button>
+                <button class="btn-medium" onclick="startGame('medium')">
+                    ⭐ Médio (7 categorias)
+                </button>
+                <button class="btn-hard" onclick="startGame('hard')">
+                    🔥 Difícil (10 categorias)
+                </button>
+            </div>
+        </div>
+
+        <!-- JOGO -->
+        <div class="game" id="gameSection">
+            <h1>🎮 ADEDANHA</h1>
+
+            <div class="score-board">
+                <div class="score-item">
+                    <div class="score-label">Rodada</div>
+                    <div class="score-value" id="roundDisplay">1</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-label">Pontos</div>
+                    <div class="score-value" id="scoreDisplay">0</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-label">Total de Rodadas</div>
+                    <div class="score-value" id="maxRoundsDisplay">5</div>
+                </div>
+            </div>
+
+            <!-- Seção de Sorteio -->
+            <div id="drawSection">
+                <div class="message">Clique para sortear uma letra! 🎲</div>
+                <button class="play-btn" onclick="drawLetter()">🎯 SORTEAR LETRA</button>
+            </div>
+
+            <!-- Seção de Jogo -->
+            <div id="playSection" style="display: none;">
+                <div class="big-letter" id="letterDisplay">?</div>
+
+                <div class="categories-container" id="categoriesContainer">
+                    <!-- Inputs dinâmicos irão aqui -->
+                </div>
+
+                <div id="loadingValidation" style="display:none;" class="loading-validation">
+                    <div class="spinner"></div>
+                    <p>Verificando palavras na internet... 🔍</p>
+                </div>
+                <button class="submit-btn" onclick="submitRound()">✅ CONFIRMAR RESPOSTAS</button>
+            </div>
+
+            <!-- Seção de Resultados -->
+            <div id="resultsSection" style="display: none;">
+                <h2>Resultados da Rodada</h2>
+                <div class="round-info" id="roundResultsInfo"></div>
+                <div id="resultsDetails"></div>
+                <button class="next-btn" onclick="nextRound()">➡️ PRÓXIMA RODADA</button>
+                <button class="back-btn" onclick="backToMenu()">🏠 VOLTAR AO MENU</button>
+            </div>
+
+            <!-- Seção Final -->
+            <div id="finalSection" style="display: none;">
+                <h2>🏆 FIM DO JOGO!</h2>
+                <div class="winner" id="winnerInfo"></div>
+                <div id="finalResults"></div>
+                <button class="play-btn" onclick="startGame(gameState.difficulty)">🔄 JOGAR NOVAMENTE</button>
+                <button class="back-btn" onclick="backToMenu()">🏠 VOLTAR AO MENU</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const gameState = {
+            difficulty: 'easy',
+            currentRound: 1,
+            totalRounds: 5,
+            totalScore: 0,
+            currentLetter: '',
+            categories: [],
+            currentAnswers: {},
+            skippedCategories: {},
+            isAnimating: false,
+            roundResults: []
+        };
+
+        const categoryConfigs = {
+            easy: [
+                { label: '👤 Nome', emoji: '👤', key: 'nome' },
+                { label: '🍎 Fruta', emoji: '🍎', key: 'fruta' },
+                { label: '🌍 Local (País/Estado/Cidade)', emoji: '🌍', key: 'local' },
+                { label: '📦 Coisa (Objeto)', emoji: '📦', key: 'coisa' },
+                { label: '🦁 Animal', emoji: '🦁', key: 'animal' }
+            ],
+            medium: [
+                { label: '👤 Nome', emoji: '👤', key: 'nome' },
+                { label: '🍎 Fruta', emoji: '🍎', key: 'fruta' },
+                { label: '🌍 Local (País/Estado/Cidade)', emoji: '🌍', key: 'local' },
+                { label: '📦 Coisa (Objeto)', emoji: '📦', key: 'coisa' },
+                { label: '🦁 Animal', emoji: '🦁', key: 'animal' },
+                { label: '🎨 Cor', emoji: '🎨', key: 'cor' },
+                { label: '📚 Profissão', emoji: '📚', key: 'profissao' }
+            ],
+            hard: [
+                { label: '👤 Nome', emoji: '👤', key: 'nome' },
+                { label: '🍎 Fruta', emoji: '🍎', key: 'fruta' },
+                { label: '🌍 Local (País/Estado/Cidade)', emoji: '🌍', key: 'local' },
+                { label: '📦 Coisa (Objeto)', emoji: '📦', key: 'coisa' },
+                { label: '🦁 Animal', emoji: '🦁', key: 'animal' },
+                { label: '🎨 Cor', emoji: '🎨', key: 'cor' },
+                { label: '📚 Profissão', emoji: '📚', key: 'profissao' },
+                { label: '🍽️ Comida', emoji: '🍽️', key: 'comida' },
+                { label: '🎵 Música/Cantora', emoji: '🎵', key: 'musica' },
+                { label: '🎬 Filme/Série', emoji: '🎬', key: 'filme' }
+            ]
+        };
+
+        const alfabeto = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+
+        const semValidacaoAPI = ['nome'];
+        const apenasWikipedia = ['local', 'musica', 'filme'];
+
+        function normalizarTexto(str) {
+            return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+        }
+
+        async function checkWiktionary(word) {
+            try {
+                const url = `https://pt.wiktionary.org/w/api.php?action=query&titles=${encodeURIComponent(word.toLowerCase())}&format=json&origin=*`;
+                const res = await fetch(url);
+                const data = await res.json();
+                return !data.query.pages['-1'];
+            } catch {
+                return false;
+            }
+        }
+
+        async function checkWikipedia(word) {
+            try {
+                const url = `https://pt.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(word)}&srlimit=5&format=json&origin=*`;
+                const res = await fetch(url);
+                const data = await res.json();
+                if (!data.query || !data.query.search) return false;
+                const wordNorm = normalizarTexto(word);
+                return data.query.search.some(result => {
+                    const titleNorm = normalizarTexto(result.title);
+                    return titleNorm === wordNorm ||
+                           titleNorm.startsWith(wordNorm) ||
+                           wordNorm.startsWith(titleNorm.split(' ')[0]);
+                });
+            } catch {
+                return true;
+            }
+        }
+
+        async function validateWord(key, word) {
+            if (semValidacaoAPI.includes(key)) {
+                return { valid: true, source: 'nome próprio' };
+            }
+            if (!apenasWikipedia.includes(key)) {
+                const inDictionary = await checkWiktionary(word);
+                if (inDictionary) return { valid: true, source: 'dicionário' };
+            }
+            const inWikipedia = await checkWikipedia(word);
+            if (inWikipedia) return { valid: true, source: 'Wikipedia' };
+            return { valid: false, source: null };
+        }
+
+        function startGame(difficulty) {
+            gameState.difficulty = difficulty;
+            gameState.currentRound = 1;
+            gameState.totalRounds = 5;
+            gameState.totalScore = 0;
+            gameState.categories = categoryConfigs[difficulty];
+            gameState.roundResults = [];
+
+            document.getElementById('menuSection').style.display = 'none';
+            document.getElementById('gameSection').style.display = 'block';
+
+            updateUI();
+            showDrawSection();
+        }
+
+        function drawLetter() {
+            gameState.isAnimating = true;
+            gameState.currentLetter = alfabeto[Math.floor(Math.random() * alfabeto.length)];
+
+            document.getElementById('drawSection').style.display = 'none';
+            document.getElementById('playSection').style.display = 'block';
+            document.getElementById('letterDisplay').textContent = gameState.currentLetter;
+
+            gameState.currentAnswers = {};
+            gameState.skippedCategories = {};
+            createCategoryInputs();
+
+            // Focus no primeiro input
+            setTimeout(() => {
+                const firstInput = document.querySelector('.category-input input');
+                if (firstInput) firstInput.focus();
+            }, 100);
+        }
+
+        function createCategoryInputs() {
+            const container = document.getElementById('categoriesContainer');
+            container.innerHTML = '';
+
+            gameState.categories.forEach(cat => {
+                const div = document.createElement('div');
+                div.className = 'category-input';
+                div.id = `row-${cat.key}`;
+                div.innerHTML = `
+                    <span class="category-label">${cat.emoji} ${cat.label}</span>
+                    <input
+                        id="input-${cat.key}"
+                        type="text"
+                        placeholder="Começa com ${gameState.currentLetter}..."
+                        onkeyup="updateAnswer('${cat.key}', this.value)"
+                        onkeypress="if(event.key === 'Enter') submitRound()"
+                    />
+                    <button type="button" class="btn-skip" id="skip-${cat.key}" onclick="skipCategory('${cat.key}')">⏭️ Pular</button>
+                    <span class="check-mark" id="check-${cat.key}"></span>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function updateAnswer(key, value) {
+            gameState.currentAnswers[key] = value.trim().toUpperCase();
+            updateCheckmarks();
+        }
+
+        function updateCheckmarks() {
+            gameState.categories.forEach(cat => {
+                const checkEl = document.getElementById(`check-${cat.key}`);
+                if (gameState.skippedCategories[cat.key]) {
+                    checkEl.textContent = '⏭️';
+                    return;
+                }
+                const answer = gameState.currentAnswers[cat.key] || '';
+                checkEl.textContent = answer.length > 0 ? '✓' : '';
+            });
+        }
+
+        function skipCategory(key) {
+            gameState.skippedCategories[key] = true;
+            delete gameState.currentAnswers[key];
+
+            const row = document.getElementById(`row-${key}`);
+            if (row) row.classList.add('category-skipped');
+
+            const input = document.getElementById(`input-${key}`);
+            if (input) {
+                input.value = '';
+                input.disabled = true;
+                input.placeholder = 'Pulado ⏭️';
+            }
+
+            const skipBtn = document.getElementById(`skip-${key}`);
+            if (skipBtn) skipBtn.disabled = true;
+
+            const checkEl = document.getElementById(`check-${key}`);
+            if (checkEl) checkEl.textContent = '⏭️';
+        }
+
+        async function submitRound() {
+            const answered = gameState.categories.filter(cat => !gameState.skippedCategories[cat.key]);
+
+            const allFilled = answered.every(cat => (gameState.currentAnswers[cat.key] || '').length > 0);
+            if (!allFilled) {
+                alert('Preenche (ou pula) todas as categorias! 📝');
+                return;
+            }
+
+            const wrongLetter = answered.find(cat => {
+                const answer = gameState.currentAnswers[cat.key] || '';
+                return answer.charAt(0) !== gameState.currentLetter;
+            });
+            if (wrongLetter) {
+                alert(`"${gameState.currentAnswers[wrongLetter.key]}" não começa com ${gameState.currentLetter}! ❌`);
+                return;
+            }
+
+            const submitBtn = document.querySelector('.submit-btn');
+            submitBtn.disabled = true;
+            document.getElementById('loadingValidation').style.display = 'flex';
+
+            const validationResults = {};
+
+            gameState.categories
+                .filter(cat => gameState.skippedCategories[cat.key])
+                .forEach(cat => {
+                    validationResults[cat.key] = { valid: false, skipped: true, source: null };
+                });
+
+            await Promise.all(
+                answered.map(async cat => {
+                    validationResults[cat.key] = await validateWord(cat.key, gameState.currentAnswers[cat.key]);
+                })
+            );
+
+            submitBtn.disabled = false;
+            document.getElementById('loadingValidation').style.display = 'none';
+
+            const roundScore = gameState.categories.filter(cat => validationResults[cat.key].valid).length;
+            gameState.totalScore += roundScore;
+
+            gameState.roundResults.push({
+                round: gameState.currentRound,
+                letter: gameState.currentLetter,
+                answers: { ...gameState.currentAnswers },
+                skipped: { ...gameState.skippedCategories },
+                validations: validationResults,
+                score: roundScore
+            });
+
+            showResultsSection(roundScore, validationResults);
+        }
+
+        function showResultsSection(score, validationResults) {
+            document.getElementById('playSection').style.display = 'none';
+            document.getElementById('resultsSection').style.display = 'block';
+
+            const total = gameState.categories.length;
+            document.getElementById('roundResultsInfo').textContent =
+                `Rodada ${gameState.currentRound}: ${score} de ${total} ${score === 1 ? 'ponto' : 'pontos'}`;
+
+            let details = '';
+            gameState.categories.forEach(cat => {
+                const validation = validationResults[cat.key];
+
+                if (validation.skipped) {
+                    details += `<div class="result-item" style="opacity:0.6">
+                        <div>
+                            <span class="result-name">⏭️ ${cat.label}: <em style="color:#aaa">pulado</em></span>
+                        </div>
+                    </div>`;
+                    return;
+                }
+
+                const answer = gameState.currentAnswers[cat.key] || '---';
+                const isCorrect = validation.valid;
+                const statusEmoji = isCorrect ? '✅' : '❌';
+                const sourceTag = isCorrect
+                    ? `<span style="font-size:11px;color:#999;margin-left:4px">(${validation.source})</span>`
+                    : '';
+                const invalidMsg = !isCorrect
+                    ? `<div style="font-size:11px;color:#e74c3c;margin-top:2px">Palavra não encontrada no dicionário</div>`
+                    : '';
+                details += `<div class="result-item">
+                    <div>
+                        <span class="result-name">${statusEmoji} ${cat.label}: <strong>${answer}</strong>${sourceTag}</span>
+                        ${invalidMsg}
+                    </div>
+                </div>`;
+            });
+
+            document.getElementById('resultsDetails').innerHTML = details;
+
+            if (gameState.currentRound >= gameState.totalRounds) {
+                setTimeout(() => showFinalSection(), 2000);
+            }
+        }
+
+        function nextRound() {
+            gameState.currentRound++;
+            document.getElementById('resultsSection').style.display = 'none';
+            showDrawSection();
+        }
+
+        function showDrawSection() {
+            document.getElementById('drawSection').style.display = 'block';
+            document.getElementById('playSection').style.display = 'none';
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('finalSection').style.display = 'none';
+            updateUI();
+        }
+
+        function showFinalSection() {
+            document.getElementById('drawSection').style.display = 'none';
+            document.getElementById('playSection').style.display = 'none';
+            document.getElementById('resultsSection').style.display = 'none';
+            document.getElementById('finalSection').style.display = 'block';
+
+            const maxPossible = gameState.totalRounds * gameState.categories.length;
+            const pct = Math.round((gameState.totalScore / maxPossible) * 100);
+            const winnerText = pct >= 80
+                ? `🎉 INCRÍVEL! ${gameState.totalScore}/${maxPossible} palavras acertadas!`
+                : pct >= 50
+                ? `🏆 Bom jogo! ${gameState.totalScore}/${maxPossible} palavras acertadas!`
+                : `💪 Continue praticando! ${gameState.totalScore}/${maxPossible} palavras acertadas.`;
+
+            document.getElementById('winnerInfo').textContent = winnerText;
+
+            let finalDetails = '<h3 style="margin: 15px 0; color: #6B5B95;">Resumo das Rodadas:</h3>';
+            gameState.roundResults.forEach(result => {
+                const statusEmoji = result.score === 10 ? '✅' : '❌';
+                finalDetails += `<div class="result-item">
+                    <span class="result-name">${statusEmoji} Rodada ${result.round} (Letra: ${result.letter})</span>
+                    <span class="result-score">${result.score} pts</span>
+                </div>`;
+            });
+
+            document.getElementById('finalResults').innerHTML = finalDetails;
+        }
+
+        function updateUI() {
+            document.getElementById('roundDisplay').textContent = gameState.currentRound;
+            document.getElementById('scoreDisplay').textContent = gameState.totalScore;
+            document.getElementById('maxRoundsDisplay').textContent = gameState.totalRounds;
+        }
+
+        function backToMenu() {
+            document.getElementById('menuSection').style.display = 'block';
+            document.getElementById('gameSection').style.display = 'none';
+            showDrawSection();
+        }
+    </script>
+</body>
+</html>
